@@ -1,3 +1,9 @@
+# 重要
+本代码基于官方代码修改，仅供参考，不具备任何线上使用能力。
+
+https://www.rtcgeek.com/?/publish/article/
+
+
 ##  跑通 Demo
 本文主要介绍如何快速运行腾讯云 TEduBoard Demo。
 
