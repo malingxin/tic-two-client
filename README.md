@@ -1,7 +1,7 @@
 # 重要
 本代码基于官方代码修改，仅供参考，不具备任何线上使用能力。
 
-https://www.rtcgeek.com/?/publish/article/
+https://www.rtcgeek.com/?/article/300
 
 
 ##  跑通 Demo
