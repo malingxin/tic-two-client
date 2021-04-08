@@ -170,11 +170,9 @@ window.app = new Vue({
       this.fileInfoList = [];
       this.currentFileId = null;
     },
-
     // 初始化SDK
-    initShareClientAndStream() {
-
-      //获取账户秘钥
+    async initShareClientAndStream() {
+      //获取账户秘钥    
       var shareClientRes = window.genTestUserSig(this.shareUserId)
       // 创建TRTC SHARE的client
       this.shareClient = TRTC.createClient({
@@ -184,7 +182,7 @@ window.app = new Vue({
         userSig: shareClientRes.userSig
       });
       // 加入TRTC 房间
-      this.shareClient.join({
+      await this.shareClient.join({
         roomId: this.roomID
       });
       // 创建屏幕分享流
@@ -193,14 +191,14 @@ window.app = new Vue({
         screen: true
       });
       // 设置分辨率
-      this.shareLocalStream.setVideoProfile({
+      await this.shareLocalStream.setVideoProfile({
         width: 1920,
         height: 1080,
         frameRate: 15,
         bitrate: 1600 /* kbps */
       });
       // 初始化流
-      this.shareLocalStream.initialize().catch(error => {
+      await this.shareLocalStream.initialize().catch(error => {
         console.error('failed initialize shareLocalStream ' + error);
       }).then(succ => {
         console.log('init shareLocalstream' + succ);
@@ -213,14 +211,16 @@ window.app = new Vue({
           document.querySelector("#video_wrap").insertBefore(localVideoWrapEl, null);
         }
         // 播放本地流（屏幕分享流）
-        this.shareLocalStream.play(localVideoWrapEl, {
-          muted: true
-        });
+        // this.shareLocalStream.play(localVideoWrapEl, {
+        //   muted: true
+        // });
       })
       // 将屏幕分享流推送出去
-      this.shareClient.publish(this.shareLocalStream).then( succ => {
+      await this.shareClient.publish(this.shareLocalStream).then(succ => {
         console.log('publish shareLocalStream' + succ)
-      }).catch( error =>{
+        this.isPushing = 1; // 正在推流
+        this.isPushCamera = true; // 正在推摄像头
+      }).catch(error => {
         console.warn('publish shareLocalStream' + error)
       })
     },
@@ -906,6 +906,17 @@ window.app = new Vue({
             callback();
           }
         });
+      } else {
+        this.shareClient.unpublish(this.shareLocalStream).then(() => {
+          this.isPushing = 0;
+          document.getElementById('local_video').remove();
+          this.shareLocalStream.stop();
+          this.shareLocalStream.close();
+          this.shareLocalStream.leave();
+          this.shareLocalStream = null;
+        }).catch(()=>{
+          console.log('shareclient unpublish error')
+        })
       }
     },
 
